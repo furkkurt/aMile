@@ -34,7 +34,10 @@ var yourCurrentHp = yourFullHp;
 yourAttack;
 yourClass= pickClass();
 yourRace= pickRace();
+var saved;
+var mystats;
 function saveData(){
+	localStorage.setItem("saved", "1");
     localStorage.setItem("Level", level);
     localStorage.setItem("XP", XP);
     localStorage.setItem("Race", yourRace);
@@ -47,6 +50,7 @@ function saveData(){
     document.getElementById("info").innerHTML= "Game saved.";
 }
 function getData(){
+	saved= parseInt(localStorage.getItem("saved"));
     XP= parseInt(localStorage.getItem("XP"));
     level= parseInt(localStorage.getItem("Level"));
     yourRace= localStorage.getItem("Race");
@@ -65,6 +69,9 @@ function pickRace(){
     return ["Dwarf", "Elf", "Human"][Math.floor(Math.random() * 3)]
 }
 function yourStats(){
+	mystats = "on";
+	sessionStorage.setItem("InfoPre", infoText);
+    sessionStorage.setItem("PicPre", document.getElementById("pic").src);
     document.getElementById("info").innerHTML= "Level: " + level + "<br> XP: " + XP + " /10 <br> Race: " + yourRace + "<br> Class: " + yourClass + "<br>Speed: " + yourSpeed + "<br>Attack: " + attackMin + "-" + attackMax + "<br>HP: " + yourFullHp;
     if(yourCurrentHp< yourFullHp){
     document.getElementById("info").innerHTML= "Level: " + level + "<br> XP: " + XP + " /10 <br> Race: " + yourRace + "<br> Class: " + yourClass + "<br>Speed: " + yourSpeed + "<br>Attack: " + attackMin + "-" + attackMax + "<br>HP: " + yourFullHp + "<br>Current Hp: " + yourCurrentHp;
@@ -72,29 +79,11 @@ function yourStats(){
     document.getElementById("pic").src= "img/"+ yourRace +" " + yourClass +".jpg"
     document.getElementById("myCharacter").style.display= "none";
     document.getElementById("statClose").style.display= "inline";
-    sessionStorage.setItem("InfoPre", infoText);
-    if (monHp>0){
-    sessionStorage.setItem("PicPre", "img/"+enemie+".jpg");
-    sessionStorage.setItem("InfoPre", infoText);
-    }
-    else if (inDungeon ==="yes"){
-    sessionStorage.setItem("PicPre", "img/Dungeon.jpg");
-    }
-    else if (inVillage ==="yes"){
-        if (villageEvent === "Villagers heal you to full health"){
-        sessionStorage.setItem("PicPre", "img/Village.jpg");
-        }
-        else {
-        sessionStorage.setItem("PicPre", "img/" + enemie + ".jpg");
-        }
-    }
-    else {
-        sessionStorage.setItem("PicPre", "");
-        sessionStorage.setItem("InfoPre", "");
-    }
 }
 
 function statClear(){
+	mystats = "off";
+	console.log("stat clear");
     document.getElementById("myCharacter").style.display= "inline";
     document.getElementById("statClose").style.display= "none";
     infoText= sessionStorage.getItem("InfoPre");
@@ -102,15 +91,23 @@ function statClear(){
     document.getElementById("pic").src= infoPic;
     document.getElementById("info").innerHTML= infoText;
 }
+function statClear2(){
+	if (mystats === "on"){
+		document.getElementById("myCharacter").style.display= "inline";
+    	document.getElementById("statClose").style.display= "none";
+	}
+	document.getElementById("delete2").style.display= "none";
+}
 function travel() {
     click = 0;
     inDungeon = "no";
     inVillage = "no";
-    document.getElementById("info").innerHTML= " ";
-    clearScreen(8, 15);
+    showButtons();
+    document.getElementById("pic").src= "img/blank.png";
+    clearScreen(2, 16);
     document.getElementById("itemDrop").innerHTML= " ";
     document.getElementById("levelUp").innerHTML= " ";
-    document.getElementById("p1").innerHTML= "<br> You traveld 3 miles";
+    document.getElementById("p1").innerHTML= "<br> You traveld a mile";
     if(yourCurrentHp< yourFullHp){
         yourCurrentHp= yourCurrentHp +1;
         document.getElementById("p2").innerHTML= "Current Hp: " + yourCurrentHp;
@@ -138,6 +135,8 @@ function travel() {
     document.getElementById("p3").innerHTML= happened;  
     if (happened === "Nothing happened..."){
         clearScreen(4, 9);
+        sessionStorage.setItem("InfoPre", "");
+    	sessionStorage.setItem("PicPre", "");
     } 
     if (happened === "You are under attack:"){
         clearScreen(8, 12);
@@ -188,6 +187,7 @@ function travel() {
     }
 }
 function combatOrder(yourSpeed, monSpeed){
+document.getElementById("p7").innerHTML= "";
 document.getElementById("dungeonContinue").style.display= "none";
 document.getElementById("dungeonLeave").style.display= "none";
 yourAttack= attackMin + Math.floor(Math.random() * 3);
@@ -220,7 +220,8 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
             }
             if (enemie === "Wess the Mad"){
                 document.getElementById("pic").src = "img/boss1.jpg";
-                document.getElementById("info").innerHTML= "Ugh! That's just beginner's luck..."
+                document.getElementById("info").innerHTML= "Ugh! That's just beginner's luck...";
+                showButtons();
             }
             if (enemie === "Gulgamath"){
                 document.getElementById("pic").src = "img/boss2.jpg";
@@ -230,13 +231,23 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
                 document.getElementById("pic").src = "img/boss3.jpg";
                 document.getElementById("info").innerHTML= "Ugh..."
             }
+            if (enemie === "Seyfendi"){
+                document.getElementById("pic").src = "img/DM.jpg";
+                document.getElementById("info").innerHTML= "Wow, you're a fast learner..."
+            }
+            if (enemie === "Riur"){
+                document.getElementById("pic").src = "img/Riur.jpg";
+                document.getElementById("info").innerHTML= "No! No! I cannot be defeated!"
+                setTimeout(() => { credits(); }, 2000);
+            }
         }
         else{
         yourCurrentHp= yourCurrentHp- monAttack;
         document.getElementById("boxAttack3").innerHTML=enemie + " hits: " + monAttack;
         document.getElementById("boxAttack4").innerHTML=enemie + "'s HP: " + monHp + "/" + monFullHp + " " + "Your HP: " + yourCurrentHp + "/" + yourFullHp;
         if (yourCurrentHp<=0){
-            document.getElementById("boxAttack5").innerHTML= "<p 'style= font-weight: bold;'> You killed by " +enemie+ " X( </p>";
+            document.getElementById("boxAttack5").innerHTML= "<p 'style= font-weight: bold;'> You killed by the " +enemie+ " X( </p>";
+            localStorage.removeItem("saved");
             localStorage.removeItem("Level");
             localStorage.removeItem("XP");
             localStorage.removeItem("Race");
@@ -251,7 +262,6 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
             document.getElementById("run").style.display= "none";
             document.getElementById("items").style.display= "none";
             document.getElementById("restartDead").style.display= "inline";
-            document.getElementById("load").style.display= "none";
             document.getElementById("delete").style.display= "none";
         }
         }
@@ -267,7 +277,6 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
                 document.getElementById("run").style.display= "none";
                 document.getElementById("items").style.display= "none";
                 document.getElementById("restartDead").style.display= "inline";
-                document.getElementById("load").style.display= "none";
                 document.getElementById("delete").style.display= "none";
             }
             else {
@@ -297,6 +306,7 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
                 if (enemie === "Wess the Mad"){
                     document.getElementById("pic").src = "img/boss1.jpg";
                     document.getElementById("info").innerHTML= "Ugh! That's just beginner's luck..."
+                    showButtons();
                 }
                 if (enemie === "Gulgamath"){
                     document.getElementById("pic").src = "img/boss2.jpg";
@@ -306,6 +316,15 @@ monAttack= attackConvert(monAttackMin, monAttackMax);
                     document.getElementById("pic").src = "img/boss3.jpg";
                     document.getElementById("info").innerHTML= "Ugh..."
                 }
+                if (enemie === "Seyfendi"){
+                document.getElementById("pic").src = "img/DM.jpg";
+                document.getElementById("info").innerHTML= "Wow, you're a fast learner..."
+            	}
+            	if (enemie === "Riur"){
+                document.getElementById("pic").src = "img/Riur.jpg";
+                document.getElementById("info").innerHTML= "No! No! I cannot be defeated!";
+                setTimeout(() => { credits(); }, 2000);
+            	}
             }
         }
     }
@@ -350,28 +369,28 @@ function pickEnemieDungeon(){
     return ["Snake", "Bear", "Kobold"][Math.floor(Math.random() * 3)];
 }
 function pickEnemielv4(){
-    return ["Dire Wolf", "Hob Goblin", "Morloc", "Skeleton", "Tiefling"][Math.floor(Math.random() * 5)];
+    return ["Dire Wolf", "Hob Goblin", "Morlock", "Skeleton", "Tiefling"][Math.floor(Math.random() * 5)];
 }
 function pickEnemieDungeonlv4(){
-    return ["Morloc", "Skeleton", "Kobold", "Tiefling", "Snake", "Bear"][Math.floor(Math.random() * 6)];
+    return ["Morlock", "Skeleton", "Kobold", "Tiefling", "Snake", "Bear"][Math.floor(Math.random() * 6)];
 }
 function pickEnemielv8(){
-    return ["Gargoyle", "Minotaur", "Ghoul", "Night elf", "Burning Skeleton"][Math.floor(Math.random() * 5)];
+    return ["Gargoyle", "Minotaur", "Ghoul", "Night Elf", "Burning Skeleton"][Math.floor(Math.random() * 5)];
 }
 function pickEnemieDungeonlv8(){
-    return ["Gargoyle", "Ghoul", "Morloc", "Skeleton", "Tiefling", "Snake", "Bear"][Math.floor(Math.random() * 7)];
+    return ["Gargoyle", "Ghoul", "Morlock", "Skeleton", "Tiefling", "Snake", "Bear"][Math.floor(Math.random() * 7)];
 }
 function pickEnemielv12(){
     return ["Hill Giant", "Werewolf", "Mammoth", "Skeletal Champion", "Djinni"][Math.floor(Math.random() * 5)];
 }
 function pickEnemieDungeonlv12(){
-    return ["Werewolf", "Skeletal Champion", "Gargoyle", "Ghoul", "Morloc", "Skeleton", "Kobold", "Snake", "Bear"][Math.floor(Math.random() * 9)];
+    return ["Werewolf", "Skeletal Champion", "Gargoyle", "Ghoul", "Morlock", "Skeleton", "Kobold", "Snake", "Bear"][Math.floor(Math.random() * 9)];
 }
 function pickEnemielv16(){
     return ["Frost Giant", "Fire Giant", "Lich", "Iron Golem", "Beholder"][Math.floor(Math.random() * 5)];
 }
 function pickEnemieDungeonlv16(){
-    return ["Lich", "Iron Golem", "Beholder", "Werewolf", "Skeletal Champion", "Gargoyle", "Ghoul", "Morloc", "Skeleton", "Kobold", "Snake", "Bear"][Math.floor(Math.random() * 12)];
+    return ["Lich", "Iron Golem", "Beholder", "Werewolf", "Skeletal Champion", "Gargoyle", "Ghoul", "Morlock", "Skeleton", "Kobold", "Snake", "Bear"][Math.floor(Math.random() * 12)];
 }
 
 function enemieData(enemie, stat){
@@ -384,15 +403,15 @@ function enemieData(enemie, stat){
         
         "Dire Wolf": {"hp":Math.floor(Math.random() * 8 +14), "attackMin":2, "attackMax":5, "speed":Math.floor(Math.random() * 3 +10)},
         "Hob Goblin": {"hp":Math.floor(Math.random() * 8 +22), "attackMin":2, "attackMax":4, "speed":Math.floor(Math.random() * 5 +4)},
-        "Morloc": {"hp": Math.floor(Math.random() * 8 +14), "attackMin":2, "attackMax":5, "speed":Math.floor(Math.random() * 3 +6)},
+        "Morlock": {"hp": Math.floor(Math.random() * 8 +14), "attackMin":2, "attackMax":5, "speed":Math.floor(Math.random() * 3 +6)},
         "Skeleton":{"hp":Math.floor(Math.random() * 8 +8), "attackMin":2, "attackMax":5, "speed":Math.floor(Math.random() * 3 +4)},
         "Tiefling": {"hp":Math.floor(Math.random() * 10 +16), "attackMin":2, "attackMax":6, "speed":Math.floor(Math.random() * 3 +8)},
 
         "Gargoyle": {"hp":Math.floor(Math.random() * 10 +24), "attackMin":6, "attackMax":12, "speed":Math.floor(Math.random() * 3 +10)},
         "Minotaur": {"hp":Math.floor(Math.random() * 10 +28), "attackMin":8, "attackMax":16, "speed":Math.floor(Math.random() * 3 +8)},
         "Ghoul": {"hp":Math.floor(Math.random() * 8 +20), "attackMin":2, "attackMax":14, "speed":Math.floor(Math.random() * 3 +12)},
-        "Night elf":{"hp":Math.floor(Math.random() * 10 +16), "attackMin":10, "attackMax":12, "speed":Math.floor(Math.random() * 3 +16)},
-        "Burning skeleton": {"hp":Math.floor(Math.random() * 10 +12), "attackMin":10, "attackMax":15, "speed":Math.floor(Math.random() * 3 +8)},
+        "Night Elf":{"hp":Math.floor(Math.random() * 10 +16), "attackMin":10, "attackMax":12, "speed":Math.floor(Math.random() * 3 +16)},
+        "Burning Skeleton": {"hp":Math.floor(Math.random() * 10 +12), "attackMin":10, "attackMax":15, "speed":Math.floor(Math.random() * 3 +8)},
 
         "Hill Giant": {"hp":Math.floor(Math.random() * 14 + 28), "attackMin":15, "attackMax":20, "speed":Math.floor(Math.random() * 3 +10)},
         "Werewolf": {"hp":Math.floor(Math.random() * 14 + 12), "attackMin":10, "attackMax":15, "speed":Math.floor(Math.random() * 3 +20)},
@@ -422,8 +441,10 @@ function enemieData(enemie, stat){
         "Tarn Linnorm": {"hp":Math.floor(Math.random() * 24 +28), "attackMin":15, "attackMax":35, "speed":Math.floor(Math.random() * 3 +20)},
 
         "Wess the Mad": {"hp":Math.floor(Math.random() * 6 +12), "attackMin":5, "attackMax":10, "speed":Math.floor(Math.random() * 5 +10)},
-        "Gulgamath": {"hp":Math.floor(Math.random() * 12 +12), "attackMin":5, "attackMax":10, "speed":Math.floor(Math.random() * 5 +15)},
-        "Cyclopes": {"hp":Math.floor(Math.random() * 12 +36), "attackMin":15, "attackMax":20, "speed":Math.floor(Math.random() * 5 +5)},
+        "Gulgamath": {"hp":Math.floor(Math.random() * 12 +12), "attackMin":8, "attackMax":12, "speed":Math.floor(Math.random() * 5 +15)},
+        "Cyclopes": {"hp":Math.floor(Math.random() * 12 +99), "attackMin":10, "attackMax":15, "speed":Math.floor(Math.random() * 5 +5)},
+        "Seyfendi": {"hp":Math.floor(Math.random() * 12 +48), "attackMin":20, "attackMax":40, "speed":Math.floor(Math.random() * 5 +15)},
+        "Riur": {"hp":100, "attackMin":30, "attackMax":50, "speed":25},
     };
     var enemieStat= enemies[enemie][stat];
     return [enemieStat];
@@ -578,11 +599,11 @@ function enter(){
             trapDamage = Math.floor(Math.random() * 3);
             document.getElementById("p4").innerHTML= "It's a trap! you took " + trapDamage + " damage.";
             yourCurrentHp= yourCurrentHp - trapDamage;
-            document.getElementById("p5").innerHTML= "Current HP: " + yourCurrentHp;
             document.getElementById("dungeonContinue").style.display= "inline";
             document.getElementById("dungeonLeave").style.display= "inline";
             if (yourCurrentHp <= 0){
                 document.getElementById("p6").innerHTML= "You died X(";
+                localStorage.removeItem("saved");
                 localStorage.removeItem("Level");
                 localStorage.removeItem("XP");
                 localStorage.removeItem("Race");
@@ -596,7 +617,6 @@ function enter(){
                 document.getElementById("dungeonLeave").style.display= "none";
                 document.getElementById("attack").style.display= "none";
                 document.getElementById("restartDead").style.display= "inline";
-                document.getElementById("load").style.display= "none";
                 document.getElementById("delete").style.display= "none";
             }
         }
@@ -666,6 +686,7 @@ function villageReject() {
     document.getElementById("reject").style.display= "none";
 }
 function dungeonContinue() {
+	clearScreen(10, 16);
     localStorage.setItem("Level", level);
     localStorage.setItem("XP", XP);
     localStorage.setItem("Race", yourRace);
@@ -676,7 +697,6 @@ function dungeonContinue() {
     localStorage.setItem("CurrentHp", yourCurrentHp);
     structure=== "dungeon";
     enter();
-    clearScreen(10, 12);
 }
 function dungeonLeave() {
     document.getElementById("p2").innerHTML= ("You left the dungeon.");
@@ -710,8 +730,8 @@ function info(word) {
         "Gargoyle": "Seemingly carved from a dark gray stone, this sinister crouching humanoid resembles a horned, winged demon.",
         "Minotaur": "With the body of a powerfully built man and the head of a snarling bull, this creature stomps its hooves as if preparing to charge.",
         "Ghoul": "This humanoid creature has long, sharp teeth, and its pallid flesh is stretched tightly over its starved frame.",
-        "Night elf": "This dark-skinned elf stands in a battle-ready pose, her hair silver and eyes white and pupilless.",
-        "Burning skeleton": "A burning skeleton is surrounded by an aura of flames.",
+        "Night Elf": "This dark-skinned elf stands in a battle-ready pose, her hair silver and eyes white and pupilless.",
+        "Burning Skeleton": "A burning skeleton is surrounded by an aura of flames.",
 
         "Hill Giant": "This hunched giant exudes power and a crude, stupid anger, its filthy fur clothing bespeaking a brutish and backwoods lifestyle.",
         "Werewolf": "This muscular creature has a man’s body but the snarling head and fur coat of a wolf.",
@@ -842,7 +862,21 @@ function pickVillageDesc(){
 function deleteCheck(){
     document.getElementById("delete2").style.display= "inline";
 }
+function delete3(){
+	localStorage.removeItem("saved");
+    localStorage.removeItem("Level");
+    localStorage.removeItem("XP");
+    localStorage.removeItem("Race");
+    localStorage.removeItem("Class");
+    localStorage.removeItem("Speed");
+    localStorage.removeItem("AttackMin");
+    localStorage.removeItem("AttackMax");
+    localStorage.removeItem("FullHp");
+    localStorage.removeItem("CurrentHp");
+	location.reload();
+}
 function restart(){
+	localStorage.removeItem("saved");
     localStorage.removeItem("Level");
     localStorage.removeItem("XP");
     localStorage.removeItem("Race");
@@ -915,13 +949,32 @@ function helpSkip(){
 }
 function helpStop() {
     document.getElementById("helpStop").style.display= "none";
+    document.getElementById("helpSkip").style.display= "none";
     document.getElementById("help").style.display= "inline";
-    document.getElementById("travel").style.display= "inline";
     document.getElementById("myCharacter").style.display= "inline";
-    document.getElementById("load").style.display= "inline";
+    document.getElementById("travel").style.display= "inline";
     document.getElementById("delete").style.display= "inline";
     click = 15;
     document.getElementById("info").innerHTML= ("Good luck!"); 
+    	if (yourCurrentHp <= 0){
+    		document.getElementById("p6").innerHTML= "You died X(";
+    			localStorage.removeItem("saved");
+                localStorage.removeItem("Level");
+                localStorage.removeItem("XP");
+                localStorage.removeItem("Race");
+                localStorage.removeItem("Class");
+                localStorage.removeItem("Speed");
+                localStorage.removeItem("AttackMin");
+                localStorage.removeItem("AttackMax");
+                localStorage.removeItem("FullHp");
+                localStorage.removeItem("CurrentHp");
+                document.getElementById("dungeonContinue").style.display= "none";
+                document.getElementById("dungeonLeave").style.display= "none";
+                document.getElementById("attack").style.display= "none";
+                document.getElementById("restartDead").style.display= "inline";
+                document.getElementById("delete").style.display= "none";
+                document.getElementById("travel").style.display= "none";
+    	}
 }
 function deleteAllButtons() {
     document.getElementById("statClose").style.display= "none";
@@ -931,7 +984,6 @@ function deleteAllButtons() {
     document.getElementById("attack").style.display= "none";
     document.getElementById("restartDead").style.display= "none";
     document.getElementById("save").style.display= "none";
-    document.getElementById("load").style.display= "none";
     document.getElementById("delete").style.display= "none";
     document.getElementById("travel").style.display= "none";
     document.getElementById("run").style.display= "none";
@@ -941,7 +993,6 @@ function deleteAllButtons() {
 function showButtons() {
     document.getElementById("myCharacter").style.display= "inline";
     document.getElementById("save").style.display= "inline";
-    document.getElementById("load").style.display= "inline";
     document.getElementById("delete").style.display= "inline";
     document.getElementById("travel").style.display= "inline";
     document.getElementById("items").style.display= "inline";
@@ -963,6 +1014,7 @@ function clearScreen(min, max) {
     "13": {"section": "boxAttack4"},
     "14": {"section": "boxAttack5"},
     "15": {"section": "info"},
+    //"16": {"section": "pic"},
     }
     for(i=0; i<16; i++){
         if(i >= min && i <= max){
@@ -979,7 +1031,7 @@ function storyLv1Text(){
         document.getElementById("pic").src= "img/villagers.jpg";
     }
     else if (click === 1){
-        document.getElementById("info").innerHTML= ("<p style= 'color: lightseagreen; font-size: larger;'>Darn... The city is fallen, run brother! Run for your life!</p>"); 
+        document.getElementById("info").innerHTML= ("<p style= 'color: lightseagreen; font-size: larger;'>Damn... The city is fallen, run prince! Run for your life!</p>"); 
         document.getElementById("pic").src ="img/Godfry.jpg"
     }
     else if (click === 2){
@@ -1019,7 +1071,7 @@ function storyLv1Text(){
     }
     else if (click === 9){
         document.getElementById("pic").style.display= "inline";
-        document.getElementById("info").innerHTML= "<p style= 'color: lightseagreen; font-size: larger;'>Run brother! Run for your life im holding him back!</p>";
+        document.getElementById("info").innerHTML= "<p style= 'color: lightseagreen; font-size: larger;'>Run prince! Run for your life im holding him back!</p>";
         document.getElementById("pic").src= "img/Godfry.jpg";
     }
     else if (click === 10){
@@ -1058,24 +1110,24 @@ function choseStayText(){
     document.getElementById("boxAttack3").innerHTML= "Your HP: " + yourFullHp;
     }
     else if (click === 14){
-    document.getElementById("info").innerHTML= "<p style= 'color: lightseagreen; font-size: larger;'>Run, brother! You can't beat him now! You should come back stronger, the king is dead, you are our last hope, prince... NOW GO!</p>";
+    document.getElementById("info").innerHTML= "<p style= 'color: lightseagreen; font-size: larger;'>Run, prince! You can't beat him now! You should come back stronger, the king is dead, you are our last hope... NOW GO!</p>";
     }
     else if (click === 15){
     document.getElementById("storySkip1").style.display= "none";
     document.getElementById("staySkip").style.display= "none";
     document.getElementById("choseRun").style.display= "none";
     document.getElementById("choseStay").style.display= "none";
-    clearScreen(2, 15);
+    clearScreen(2, 16);
     document.getElementById("pic").src= "img/"+ yourRace +" " + yourClass +".jpg";
     showButtons();
     }
 }
 function choseRun() {
     document.getElementById("storySkip1").style.display= "none";
-    clearScreen(2, 15);
+    clearScreen(2, 16);
     document.getElementById("pic").src= "img/"+ yourRace +" " + yourClass +".jpg";
     showButtons();
-    document.getElementById("info").innerHTML= "(You escaped, but Sir Godry and the king is dead. As the last member of the royal family, you are the only hope to reunite the empire. You should get strong to defeat Riur.)"
+    document.getElementById("info").innerHTML= "(You escaped, but Sir Godry and the king is dead. As the last member of the royal family, you are the only hope to reunite the empire. You must get stronger to stand against Riur.)"
     document.getElementById("choseRun").style.display= "none";
     document.getElementById("choseStay").style.display= "none";
 }
@@ -1083,6 +1135,23 @@ function choseStay(){
     document.getElementById("storySkip1").style.display= "none";
     document.getElementById("staySkip").style.display= "inline";
     choseStayText();
+}
+function autoload(){
+	saved = localStorage.getItem("saved");
+	console.log(saved)
+	if(saved === "1"){
+		getData();
+    	clearScreen(2, 15);
+    	document.getElementById("pic").src= "img/"+ yourRace +" " + yourClass +".jpg";
+    	deleteAllButtons();
+    	document.getElementById("picStory").src= "img/story1.jpg";
+    	document.getElementById("picStory").style.display= "none";
+    	document.getElementById("storySkip1").style.display= "none";
+    	showButtons();
+    }
+    else {
+    	storyLv1();
+    }
 }
 function storySkip1(){
     level = 1;
@@ -1101,7 +1170,7 @@ function staySkip(){
 function bossFight() {
     if (level=== 4) {
     deleteAllButtons();
-    clearScreen(2,15);
+    clearScreen(2, 16);
     document.getElementById("bossFightSkip").style.display= "inline";
         if (click === 0) {
             document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
@@ -1134,13 +1203,16 @@ function bossFight() {
         }
     }
     else if (level === 8) {
+    	deleteAllButtons();
+    	clearScreen(2, 16);
+    	document.getElementById("bossFightSkip").style.display= "inline";
         if (click === 0) {
             document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
             document.getElementById("info").innerHTML= "What's happening?!";
         }
         if (click === 1) {
             document.getElementById("pic").src = "img/boss2.jpg";
-            document.getElementById("info").innerHTML= "I curse you little prince!"
+            document.getElementById("info").innerHTML= "I curse you little prince! *You have been cursed! (Your hp fell)"
             yourCurrentHp= Math.floor(yourCurrentHp/2);
             document.getElementById("p2").innerHTML= "HP: " + yourCurrentHp + "/" + yourFullHp;
         }
@@ -1158,15 +1230,17 @@ function bossFight() {
         }
     }
     else if (level === 12) {
+    	deleteAllButtons();
+    	clearScreen(2, 16);
+    	document.getElementById("bossFightSkip").style.display= "inline";
         if (click === 0) {
             document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
             document.getElementById("info").innerHTML= "What?! Gorund is shaking...";
         }
         if (click === 1) {
             document.getElementById("pic").src = "img/boss3.jpg";
-            document.getElementById("info").innerHTML= "Ugh... <br> A single huge eye stares from the forehead of this nine-foot-tall giant. Below this sole orb, an even larger mouth gapes like a cave."
-            yourCurrentHp= Math.floor(yourCurrentHp/2);
-            document.getElementById("p2").innerHTML= "HP: " + yourCurrentHp + "/" + yourFullHp;
+            document.getElementById("info").innerHTML= "Ugh... <br> *A single huge eye stares from the forehead of this nine-foot-tall giant. Below this sole orb, an even larger mouth gapes like a cave.*"
+   
         }
         if (click === 2) {
             enemie= "Cyclopes";
@@ -1182,18 +1256,62 @@ function bossFight() {
         }
     }
     else if (level === 16) {
+    	deleteAllButtons();
+    	clearScreen(2, 16);
+    	document.getElementById("bossFightSkip").style.display= "inline";
         if (click === 0) {
-            document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
-            document.getElementById("info").innerHTML= "What?! Gorund is shaking...";
+            document.getElementById("pic").src = "img/none.jpg";
+            document.getElementById("info").innerHTML= "Stop right where you are kid!";
         }
         if (click === 1) {
-            document.getElementById("pic").src = "img/boss3.jpg";
-            document.getElementById("info").innerHTML= ""
-            yourCurrentHp= Math.floor(yourCurrentHp/2);
-            document.getElementById("p2").innerHTML= "HP: " + yourCurrentHp + "/" + yourFullHp;
+            document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
+            document.getElementById("info").innerHTML= "Huh?"
         }
         if (click === 2) {
-            enemie= "Cyclopes";
+            document.getElementById("pic").src = "img/DM.jpg";
+            document.getElementById("info").innerHTML= "You have gone too far! I was being kind cause i really didn't belive you'd come this far... I have to put an end to this madness.";
+        }
+        if (click === 3) {
+            document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
+            document.getElementById("info").innerHTML= "Don't you saw the city burning, Seyfendi? What Riur's doing to people is madness, now get out of my way!"
+        }
+        if (click === 4) {
+            document.getElementById("pic").src = "img/DM.jpg";
+            document.getElementById("info").innerHTML= "I can't let you stop Lord Riur, sorry kid, i'll have to do this! *Seyfendi zaps at you, you feel weak (your atack fell.)*";
+            attackMin= Math.floor(attackMin/2);
+            document.getElementById("p2").innerHTML= "Your Attack: " + attackMin;
+        }
+        if (click === 5) {
+            enemie= "Seyfendi";
+            monHp= enemieData(enemie, "hp");
+            monFullHp= monHp;
+            monSpeed= enemieData(enemie, "speed");
+            monAttackMin= enemieData(enemie, "attackMin");
+            monAttackMax= enemieData(enemie, "attackMax");
+            monAttack= attackConvert(monAttackMin, monAttackMax);
+            document.getElementById("attack").style.display= "inline";
+            document.getElementById("myCharacter").style.display= "inline";
+            document.getElementById("bossFightSkip").style.display= "none";
+        }
+    }
+    else if (level === 20) {
+    	deleteAllButtons();
+    	clearScreen(2, 16);
+    	document.getElementById("bossFightSkip").style.display= "inline";
+        if (click === 0) {
+            document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
+            document.getElementById("info").innerHTML= "So this is it, Riur's castle..."
+        }
+        if (click === 1) {
+            document.getElementById("pic").src = "img/Riur.jpg";
+            document.getElementById("info").innerHTML= "What?! Prince... I must admit i am suprised you've come this far. Now i can finally kill the last member of the royal family!";
+        }
+        if (click === 2) {
+            document.getElementById("pic").src = "img/" + yourRace + " " + yourClass + ".jpg";
+            document.getElementById("info").innerHTML= "Bring it on!"
+        }
+        if (click === 3) {
+            enemie= "Riur";
             monHp= enemieData(enemie, "hp");
             monFullHp= monHp;
             monSpeed= enemieData(enemie, "speed");
@@ -1209,4 +1327,13 @@ function bossFight() {
 function bossFightSkip() {
     click = click + 1;
     bossFight();
+}
+function credits() {
+	deleteAllButtons();
+	clearScreen(2, 16);
+    document.getElementById("info").innerHTML= "<p style= 'color: yellow; font-size: larger;'>You made it! You saved the city and became the new king. People cheer you as you walk into your castle.<br>*Thanks for playing :D!*<br>-Kürek Lahmacun-</p>"
+    document.getElementById("picStory").src= "img/end.jpg";    
+    document.getElementById("picStory").style.display= "inline";
+    document.getElementById("p1").innerHTML="";
+    document.getElementById("pic").src= "img/" + yourRace + " " + yourClass + ".jpg";
 }

@@ -6,31 +6,30 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="bootstrap.css">
 </head>
-<body style="background-color:black onload="storyLv1()">
+<body onload="autoload()">
     <script src="script.js"></script>
     <div class="container-4"><img id="picStory">
     <div class="container-1">
         <button id="myCharacter" class="btn-info" onclick="yourStats()">My Character</button>
         <button id="statClose" class="btn-info" onclick="statClear()">Close</button>
-        <button id="travel" class="btn-success" onclick="travel()">Travel</button>
-        <button id="enter" class="btn-warning" onclick="enter()">Enter</button>
-        <button id="notEnter" class="btn-warning" onclick="notEnter()">Don't Enter</button>
-        <button id="accept" class="btn-success" onclick="villageAccept()">Accept</button>
-        <button id="reject" class="btn-warning" onclick="villageReject()">Reject</button>
-        <button id="dungeonContinue" class="btn-warning" onclick="dungeonContinue()">Continue to next room</button>
-        <button id="dungeonLeave" class="btn-warning" onclick="dungeonLeave()">Leave Dungeon</button>
-        <button id="attack" class="btn-warning" onclick="combatOrder(yourSpeed, monSpeed)">Attack</button>
-        <button id="run" class="btn-warning" onclick="run()">Run</button>
-        <button id="choseRun" class="btn-warning" onclick="choseRun()">Run</button>
-        <button id="choseStay" class="btn-warning" onclick="choseStay()">Stay</button>
+        <button id="travel" class="btn-success" onclick="travel(); statClear2()">Travel</button>
+        <button id="enter" class="btn-warning" onclick="enter(); statClear2()">Enter</button>
+        <button id="notEnter" class="btn-warning" onclick="notEnter(); statClear2()">Don't Enter</button>
+        <button id="accept" class="btn-success" onclick="villageAccept(); statClear2()">Accept</button>
+        <button id="reject" class="btn-warning" onclick="villageReject(); statClear2()">Reject</button>
+        <button id="dungeonContinue" class="btn-warning" onclick="dungeonContinue(); statClear2()">Continue to next room</button>
+        <button id="dungeonLeave" class="btn-warning" onclick="dungeonLeave(); statClear2()">Leave Dungeon</button>
+        <button id="attack" class="btn-warning" onclick="combatOrder(yourSpeed, monSpeed); statClear2()">Attack</button>
+        <button id="run" class="btn-warning" onclick="run(); statClear2()">Run</button>
+        <button id="choseRun" class="btn-warning" onclick="choseRun(); statClear2()">Run</button>
+        <button id="choseStay" class="btn-warning" onclick="choseStay(); statClear2()">Stay</button>
         <div class="contalt">
         <button id="restartDead" class="btn-danger" onClick="window.location.reload();">Restart</button>
-        <button id="save" class="btn-warning" onclick="saveData()">Save</button>
-        <button id="load" class="btn-info" onclick="getData()">Load</button>
+        <button id="save" class="btn-warning" onclick="saveData(); statClear2()">Save</button>
         <button id="delete" class="btn-danger" onclick="deleteCheck()">Delete Save</button>
-        <button id="delete2" class="btn-danger" onClick="window.location.reload();" onclick="restart()">I said delete save!</button>
-        <button id="help" class="btn-warning" onclick="help()">Help</button>
-        <button id="helpStop" class="btn-warning" onclick="helpStop()">Stop</button>
+        <button id="delete2" class="btn-danger" onClick="delete3()">I said delete save!</button>
+        <button id="help" class="btn-warning" onclick="help(); statClear2()">Help</button>
+        <button id="helpStop" class="btn-warning" onclick="helpStop(); statClear2()">Stop</button>
         <button id="storySkip1" class="btn-secondary" onclick="storySkip1()">Next</button>
         <button id="staySkip" class="btn-secondary" onclick="staySkip()">Next</button>
         <button id="helpSkip" class="btn-secondary" onclick="helpSkip()">Next</button>
